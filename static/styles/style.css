@@ -1,0 +1,17 @@
+.table-container {
+    padding-top: 50px;
+}
+.shifted {
+    padding-left: 30px;
+}
+header {
+    margin: 0;
+    width: 100%;
+    background-color:darkgreen;
+    color: white;
+    box-sizing: border-box;
+    padding: 5px 10px;
+}
+body { 
+    margin: 0;
+}
