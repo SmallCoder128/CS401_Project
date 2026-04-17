@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Food Finder</title>
+        </head>
+    <header>
+        <h1 id="main_title">Food Finder</h1>
+    </header>
+    <body> 
+        <div class="shifted">  
+        <label for="locators">Select a location:</label>
+   
+        <select name="locators" id = "locators">
+            {% for locator in locators %}
+                <option value="{{ locator }}" {% if locator == selected_place %}selected{% endif %}>
+                     {{ locator }}
+                 </option>
+            {% endfor %}
+        </select>
+            <div class="table-container">
+                {% if tables %}
+                    {% for table in tables %}
+                        {{ table|safe }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </body>
+    <script>
+
+    // Javascript to change the page when a dropdown item is selected
+    const selectElement = document.getElementById('locators');
+   
+    async function updatetable() {
+        const selectedValue = selectElement.value;
+        window.location.href = `/restaurants?place=${selectedValue}`;
+        // Update the table with the new data
+    }
+    selectElement.addEventListener('change', updatetable);
+    </script>
+</html>
