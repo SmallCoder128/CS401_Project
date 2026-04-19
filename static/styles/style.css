@@ -1,17 +1,86 @@
+body{
+    background-color: #f5f8fc !important;
+    margin: 0;
+}
+
+/* Navbar Styles */
+.main-nav{
+    height: 50px;
+    background-color: #3c6ec2; 
+}
+
+.nav-link{
+    font-weight: bold;
+    color: #2e2518 !important;
+}
+
+.nav-link:hover{
+    color: #3c6ec2 !important;
+}
+
+.model-link{
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ececec;
+}
+
+.model-link:hover{
+    color: rgb(201, 221, 245);
+}
+
+/* Card Styles */
+.card-title{
+    font-weight: bold;
+    margin-bottom: 20px !important;
+}
+
+.m1-card-link, .m2-card-link, .m3-card-link{
+    text-decoration: none;
+    color: #2e2518;
+}
+
+/* index.html */
+.hero-img{
+    height: 450px;
+    object-fit: cover;
+    filter: grayscale(100%) brightness(90%) contrast(110%);
+    opacity: 1;
+}
+.web-name{
+    color: white;
+    font-weight: bold !important;
+    text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* restaurant.html */
+.restaurant-title{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.restaurant-link{
+    text-decoration: none;
+    color: #2e2518;
+}
+
+.restaurant-link:hover{
+    color: #3c6ec2;
+}
+
 .table-container {
     padding-top: 50px;
 }
+
 .shifted {
     padding-left: 30px;
 }
-header {
+
+/*header {
     margin: 0;
     width: 100%;
     background-color:darkgreen;
     color: white;
     box-sizing: border-box;
     padding: 5px 10px;
-}
-body { 
-    margin: 0;
-}
+}*/
