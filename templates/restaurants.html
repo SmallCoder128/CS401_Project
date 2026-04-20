@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <title>WebName | Restaurants</title>
+        </head>
+    <body> 
+
+        {% include 'navbar.html' %}
+
+        <div class="shifted">  
+            <h1 class="restaurant-title text-center">Food Finder</h1>
+            
+            <!-- Select Menu -->
+            <div class="select-location d-flex justify-content-center">
+                <label for="locators">Select a location:</label>
+
+                <select name="locators" id = "locators">
+                    {% for locator in locators %}
+                        <option value="{{ locator }}" {% if locator == selected_place %}selected{% endif %}>
+                            {{ locator }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!--<div class="table-container">
+                {% if tables %}
+                    {% for table in tables %}
+                        {{ table|safe }}
+                    {% endfor %}
+                {% endif %}
+            </div>-->
+        </div>
+
+        <!-- Cards -->
+        <div class="container mt-4 mb-4">
+            <div class="row g-4">
+                {% for r in restaurants %}
+                <div class="col-md-4">
+                    <a href="{{ url_for('restaurant_detail', name=r.Name)}}" class="restaurant-link">
+                        <div class="card h-100 shadow-sm">
+                            <img src="placeholder/300x200" class="card-img-top" alt="Restaurant Image">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ r.Name }}</h5>
+                                <p class="card-text mb-1">
+                                    <strong>Location:</strong> {{ r.Locator }}
+                                </p>
+                                <p class="card-text mb-1">
+                                    <strong>Address:</strong> {{ r.Address }}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </body>
+    <script>
+
+    // Javascript to change the page when a dropdown item is selected
+    const selectElement = document.getElementById('locators');
+   
+    async function updatetable() {
+        const selectedValue = selectElement.value;
+        window.location.href = `/restaurants?place=${selectedValue}`;
+        // Update the table with the new data
+    }
+    selectElement.addEventListener('change', updatetable);
+    </script>
+</html>

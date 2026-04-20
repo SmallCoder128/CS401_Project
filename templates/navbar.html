@@ -1,0 +1,28 @@
+<header class="double-navbar">
+
+    <!-- Top Nav -->
+    <nav class='top-nav'>
+        <div class="container d-flex justify-content-between align-items-center" style="height: 80px">  
+            <!-- Logo (Optional) -->
+            <div class="d-flex align-items-center">
+                <img 
+                    src="https://www.svgheart.com/wp-content/uploads/2025/04/spoon_488-430-min.png" 
+                    style="height: 30px;">
+            </div>
+
+            <!-- Links -->
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('home') }}" class="nav-link mx-2">Home</a> 
+                <a href="#" class="nav-link">About</a> 
+            </div>
+        </div>
+    </nav>
+
+    <!-- Model Nav -->
+    <nav class="main-nav d-flex justify-content-center align-items-center">
+        <a href="{{ url_for('get_restaurants_page') }}" class="model-link mx-5">Restaurants</a> 
+        <a href="#" class="model-link mx-5">Reviews</a> 
+        <a href="#" class="model-link mx-5">Preferences</a>
+    </nav>
+
+</header>
