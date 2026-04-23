@@ -1,12 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+/* –––––––––– GENERAL –––––––––– */
 body{
     background-color: #f5f8fc !important;
     margin: 0;
 }
 
-/* Navbar Styles */
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Google Sans";
+}
+
+p, label, select {
+    font-family: "Rubik"; 
+}
+
+/* –––––––––– NAVBAR –––––––––– */
 .main-nav{
-    height: 50px;
+    height: 45px;
     background-color: #3c6ec2; 
+}
+
+.top-nav{
+    background-color: #d5ddea;
 }
 
 .nav-link{
@@ -14,33 +30,49 @@ body{
     color: #2e2518 !important;
 }
 
-.nav-link:hover{
+.nav-link:hover, .active-link{
     color: #3c6ec2 !important;
+    text-decoration: solid;
 }
 
 .model-link{
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     text-decoration: none;
-    color: #ececec;
+    color: #d0dbed;
 }
 
-.model-link:hover{
-    color: rgb(201, 221, 245);
+.model-link:hover, .active-model{
+    color: #ffffff;
 }
 
-/* Card Styles */
+/* –––––––––– SHARED LINK STYLES –––––––––– */
+.model-card-link, .restaurant-link, .git-link, 
+.contact-link{
+    text-decoration: none;
+    color: #2e2518;
+}
+
+.model-card-link:hover, .restaurant-link:hover, 
+.git-link:hover, .contact-link:hover{
+    color: #3c6ec2;
+}
+
+/* –––––––––– CARDS –––––––––– */
 .card-title{
     font-weight: bold;
     margin-bottom: 20px !important;
 }
 
-.m1-card-link, .m2-card-link, .m3-card-link{
-    text-decoration: none;
-    color: #2e2518;
+.card {
+    transition: transform 0.1s ease-in-out; 
+}
+  
+.card:not(.no-hover):hover {
+    transform: scale(1.05); 
 }
 
-/* index.html */
+/* –––––––––– INDEX –––––––––– */
 .hero-img{
     height: 450px;
     object-fit: cover;
@@ -53,34 +85,11 @@ body{
     text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.3);
 }
 
-/* restaurant.html */
+/* –––––––––– RESTAURANT MODEL –––––––––– */
 .restaurant-title{
-    margin-top: 10px;
     margin-bottom: 10px;
-}
-
-.restaurant-link{
-    text-decoration: none;
-    color: #2e2518;
-}
-
-.restaurant-link:hover{
-    color: #3c6ec2;
 }
 
 .table-container {
     padding-top: 50px;
 }
-
-.shifted {
-    padding-left: 30px;
-}
-
-/*header {
-    margin: 0;
-    width: 100%;
-    background-color:darkgreen;
-    color: white;
-    box-sizing: border-box;
-    padding: 5px 10px;
-}*/
