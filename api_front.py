@@ -1,40 +1,54 @@
 import pandas as pd
 from flask import Flask, request, render_template
+from typing import List, Dict
+from pandas import DataFrame
 
 app = Flask(__name__)
 
-def get_data():
-    '''
-    Load restaurant data from a CSV file.
-    '''
+def get_data() -> DataFrame:
     data = pd.read_csv('restaurants.csv')
     return data
 
-def index():
-    return render_template("index.html")
+def index() -> str:
+    return render_template("index.html", active_page="home")
 
 def locator_list():
     data = get_data()
     locators = data['Locator'].unique().tolist()
     return locators
 
-@app.route('/')
-def home():
-    return render_template("index.html")
-    
-
+# ––––––––––––––– API ENDPOINT ––––––––––––––– #
 @app.route('/api/restaurants', methods=['GET'])
-def get_restaurants():
+def get_restaurants() -> List[Dict]:
     '''
-    API endpoint to retrieve restaurant data.
+    API endpoint to retrieve all restaurant data.
+
+    Returns:
+        List[Dict]: A list of restaurant records in dictionary format.
     '''
     data = get_data()
     return data.to_dict('records')
 
+## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
+@app.route('/')
+def home():
+    return render_template("index.html", active_page="home")
+
+@app.route('/about', methods=["GET"])
+def about():
+    return render_template("about.html", active_page="about")
+
+## ––––––––––––––– RESTAURANT MODEL ––––––––––––––– ##
 @app.route('/restaurants', methods=["GET"])
-def get_restaurants_page():
+def get_restaurants_page() -> str:
     '''
-    Directory of restaurants.
+    Render the restaurant directory page with optional location filtering.
+
+    Query Parameter:
+        place (Optional[str]): Filter restaurants by location.
+    
+    Returns:
+        str: Rendered HTML for the restaurants page.
     '''
     locators = locator_list()
     place = request.args.get('place')
@@ -50,6 +64,7 @@ def get_restaurants_page():
 
     return render_template(
         "restaurants.html",
+        active_page="restaurants",
         #tables=[df.to_html(classes='data')],
         restaurants=restaurants,
         titles=df.columns.values,
@@ -57,11 +72,43 @@ def get_restaurants_page():
         selected_place=place)
 
 @app.route('/restaurant/<name>')
-def restaurant_detail(name):
+def restaurant_detail(name: str) -> str:
     '''
-    Returns individual restaurant page upon selection.
+    Renders a detailed page for a specific restaurant.
+
+    Args:
+        name (str): The name of the restaurant.
+
+    Returns: 
+        str: Rendered HTML for the restaurant detail page.
+    
+    Raises:
+        404: If the restaurant is not found. 
     '''
-    return f"<h1>{name}</h1><p>Details coming soon...</p>"
+    data = get_data()
+    df = pd.DataFrame(data)
+
+    restaurant = df[df["Name"] == name]
+
+    if restaurant.empty:
+        return "Restaurant not found", 404
+    
+    restaurant = restaurant.iloc[0].to_dict()
+
+    return render_template(
+        "restaurant_detail.html",
+        active_page="restaurants",
+        restaurant=restaurant)
+
+## ––––––––––––––– REVIEWS MODEL ––––––––––––––– ##
+@app.route('/reviews', methods=["GET"])
+def get_reviews_page():
+    return render_template("reviews.html", active_page="reviews")
+
+## ––––––––––––––– PREFERENCES MODEL ––––––––––––––– ##
+@app.route('/preferences', methods=["GET"])
+def get_preferences_page():
+    return render_template("preferences.html", active_page="preferences")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
