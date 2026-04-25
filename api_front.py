@@ -5,15 +5,23 @@ from pandas import DataFrame
 
 app = Flask(__name__)
 
-def get_data() -> DataFrame:
-    data = pd.read_csv('restaurants.csv')
+def get_restaurant_data() -> DataFrame:
+    data = pd.read_csv("restaurants.csv")
     return data
+
+def get_reviews_data() -> DataFrame:
+    data2 = pd.read_csv("restaurant_reviews.csv")
+    return data2
+
+def get_preferences_data() -> DataFrame:
+    data3 = pd.read_csv("category_table.csv")
+    return data3
 
 def index() -> str:
     return render_template("index.html", active_page="home")
 
 def locator_list():
-    data = get_data()
+    data = get_restaurant_data()
     locators = data['Locator'].unique().tolist()
     return locators
 
@@ -26,7 +34,7 @@ def get_restaurants() -> List[Dict]:
     Returns:
         List[Dict]: A list of restaurant records in dictionary format.
     '''
-    data = get_data()
+    data = get_restaurant_data()
     return data.to_dict('records')
 
 ## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
@@ -52,7 +60,7 @@ def get_restaurants_page() -> str:
     '''
     locators = locator_list()
     place = request.args.get('place')
-    data = get_data()
+    data = get_restaurant_data()
     df = pd.DataFrame(data)
 
     df = df.drop(columns=['id'])
@@ -85,7 +93,7 @@ def restaurant_detail(name: str) -> str:
     Raises:
         404: If the restaurant is not found. 
     '''
-    data = get_data()
+    data = get_restaurant_data()
     df = pd.DataFrame(data)
 
     restaurant = df[df["Name"] == name]
