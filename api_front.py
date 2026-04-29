@@ -219,7 +219,23 @@ def restaurant_reviews(name: str) -> str:
         reviews=reviews,
         active_page="reviews"
     )
+## ---------------SINGLE RESTRAURANT REVIEW PAGE---------------- ##
+@app.route('/restaurant/review/<name>', methods=['GET'])
+def review_page(name: str ) -> str:
+    """Render a page showing all reviews for a specific restaurant."""
+    
+    reviews = get_reviews_data()
+    reviews_df = reviews[reviews['name'] == name]
+    reviews = reviews_df.to_dict(orient='records')
 
+    print(reviews)
+
+    
+    return render_template(
+        "restaurant_reviews.html",
+        reviews=reviews,
+        active_page="reviews"
+    )
 ## ––––––––––––––– PREFERENCES MODEL ––––––––––––––– ##
 @app.route('/preferences', methods=["GET"])
 def get_preferences_page():
