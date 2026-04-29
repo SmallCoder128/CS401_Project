@@ -14,6 +14,7 @@ def get_restaurant_direct() -> DataFrame:
     data1 = pd.read_csv('data/Restaurants_direct.csv')
     data1['location'] = data1['location'].apply(ast.literal_eval)
     data1['hours_day'] = data1['hours_day'].apply(ast.literal_eval)
+    data1['coordinates'] = data1['coordinates'].apply(ast.literal_eval)
     return data1
 
 def get_reviews_data() -> DataFrame:
@@ -25,8 +26,8 @@ def get_preferences_data() -> DataFrame:
     return data3
 
 def locator_list():
-    data = get_restaurant_data()
-    locators = data['Locator'].str.strip().unique().tolist()
+    data = get_restaurant_direct()
+    locators = data['locator'].str.strip().unique().tolist()
     return locators
 
 def cats_list():
@@ -36,6 +37,22 @@ def cats_list():
     df['cats'] = df['cats'].apply(ast.literal_eval)
     all_cats = df['cats'].explode().unique().tolist()
     return sorted(all_cats)
+#-----------------filters-----------------#
+def format_time(value):
+    """Convert 0700 to 7:00 AM"""
+    if not value:
+        return "Closed"
+    value = str(value).zfill(4)
+    hour = int(value[:2])
+    minute = value[2:]
+    period = "AM" if hour < 12 else "PM"
+    if hour == 0:
+        hour = 12
+    elif hour > 12:
+        hour -= 12
+    return f"{hour}:{minute} {period}"
+
+app.jinja_env.filters['format_time'] = format_time
 
 # ––––––––––––––– API ENDPOINT ––––––––––––––– #
 @app.route('/api/restaurants', methods=['GET'])
@@ -46,7 +63,7 @@ def get_restaurants() -> List[Dict]:
     Returns:
         List[Dict]: A list of restaurant records in dictionary format.
     '''
-    data = get_restaurant_data()
+    data = get_restaurant_direct()
     return data.to_dict('records')
 
 ## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
@@ -77,24 +94,24 @@ def get_restaurants_page() -> str:
     place = request.args.get('place')
     selected_cats = request.args.getlist('cats')
 
-    restaurants_df = get_restaurant_data()
+    restaurants_df = get_restaurant_direct()
     categories_df = get_preferences_data()
 
     categories_df['cats'] = categories_df['cats'].apply(
         lambda x: ast.literal_eval(x) if isinstance(x, str) else x
     )
 
-    merged = restaurants_df.merge(categories_df, on="Name")
+    merged = restaurants_df.merge(categories_df, on="name", how="left")
 
     # Filtering (Location & Category)
     if place:
-        merged = merged[merged['Locator'] == place]
+        merged = merged[merged['locator'] == place]
     if selected_cats:
         merged = merged[
             merged['cats'].apply(lambda cat_list: all(c in cat_list for c in selected_cats))
         ]
 
-    merged = merged.drop_duplicates(subset=['Name'])
+    merged = merged.drop_duplicates(subset=['name'])
 
     restaurants = merged.to_dict(orient='records')
 
@@ -121,19 +138,19 @@ def restaurant_detail(name: str) -> str:
     Raises:
         404: If the restaurant is not found. 
     '''
-    restaurants_df = get_restaurant_data()
+    restaurants_df = get_restaurant_direct()
     categories_df = get_preferences_data()
 
     categories_df['cats'] = categories_df['cats'].apply(ast.literal_eval)
 
-    restaurant = restaurants_df[restaurants_df['Name'] == name]
+    restaurant = restaurants_df[restaurants_df['name'] == name]
 
     if restaurant.empty:
         return "Restaurant not found", 404
     
     restaurant = restaurant.iloc[0].to_dict()
 
-    cats = categories_df[categories_df['Name'] == name]['cats'].explode().tolist()
+    cats = categories_df[categories_df['name'] == name]['cats'].explode().tolist()
 
     return render_template(
         "restaurant_detail.html",
@@ -152,22 +169,23 @@ def get_reviews_page():
         sort (str): 'rating' or 'alpha'
     """
     reviews_df = get_reviews_data()
-    restaurants_df = get_restaurant_data()
+    restaurants_df = get_restaurant_direct()
     sort_option = request.args.get("sort")
 
-    merged = reviews_df.merge(
-        restaurants_df[['alias', 'Name']],
+    """merged = reviews_df.merge(
+        restaurants_df[['alias', 'name']],
         on='alias',
         how='left'
     )
 
-    merged = pd.concat([merged, restaurants_df['Name']], axis=1)
+    merged = pd.concat([merged, restaurants_df['name']], axis=1)"""
 
+    merged = reviews_df
     # Sorting Logic
     if sort_option == "rating":
         merged = merged.sort_values(by="rating", ascending=False)
     elif sort_option == "alpha":
-        merged = merged.sort_values(by="Name", ascending=True)
+        merged = merged.sort_values(by="name", ascending=True)
 
     reviews = merged.to_dict(orient='records')
 
@@ -183,16 +201,16 @@ def restaurant_reviews(name: str) -> str:
     Render all reviews for a specific restaurant.
     """
     reviews_df = get_reviews_data()
-    restaurant_df = get_restaurant_data()
+    restaurant_df = get_restaurant_direct()
 
-    restaurant = restaurant_df[restaurant_df['Name'] == name]
+    restaurant = restaurant_df[restaurant_df['name'] == name]
     
     if restaurant.empty:
         return "Restaurant not found", 404
     
     restaurant = restaurant.iloc[0].to_dict()
 
-    reviews = reviews_df[reviews_df['Name'] == name]
+    reviews = reviews_df[reviews_df['name'] == name]
     reviews = reviews_df.to_dict(orient='records')
 
     return render_template(
