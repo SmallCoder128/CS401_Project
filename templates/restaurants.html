@@ -49,17 +49,17 @@
             <div class="row g-4">
                 {% for r in restaurants %}
                 <div class="col-md-4">
-                    <a href="{{ url_for('restaurant_detail', name=r.Name)}}" 
+                    <a href="{{ url_for('restaurant_detail', name=r.name)}}" 
                         class="restaurant-link" target="_blank">
                         <div class="card h-100 shadow-sm">
-                            <img src="placeholder/300x200" class="card-img-top" alt="Restaurant Image">
+                            <img src="{{r.image_url}}" class="card-img-top" alt="Restaurant Image" style="height: 200px; object-fit: cover;">>
                             <div class="card-body">
-                                <h4 class="card-title">{{ r.Name }}</h4>
+                                <h4 class="card-title">{{ r.name }}</h4>
                                 <p class="card-text mb-1">
-                                    <strong>Location:</strong> {{ r.Locator }}
+                                    <strong>Location:</strong> {{ r.locator }}
                                 </p>
                                 <p class="card-text mb-1">
-                                    <strong>Address:</strong> {{ r.Address }}
+                                    <strong>Address:</strong> {{ r.location.get('display_address', 'N/A') | join(', ') }}
                                 </p>
                             </div>
                         </div>

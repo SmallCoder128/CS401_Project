@@ -2,28 +2,54 @@ import pandas as pd
 from flask import Flask, request, render_template
 from typing import List, Dict
 from pandas import DataFrame
+import ast
 
 app = Flask(__name__)
 
 def get_restaurant_data() -> DataFrame:
-    data = pd.read_csv("restaurants.csv")
+    data = pd.read_csv('data/restaurants.csv')
     return data
 
+def get_restaurant_direct() -> DataFrame:
+    data1 = pd.read_csv('data/Restaurants_direct.csv')
+    data1['location'] = data1['location'].apply(ast.literal_eval)
+    data1['hours_day'] = data1['hours_day'].apply(ast.literal_eval)
+    return data1
+
 def get_reviews_data() -> DataFrame:
-    data2 = pd.read_csv("restaurant_reviews.csv")
+    data2 = pd.read_csv('data/restaurant_reviews.csv')
     return data2
 
 def get_preferences_data() -> DataFrame:
-    data3 = pd.read_csv("category_table.csv")
+    data3 = pd.read_csv('data/category_table.csv')
     return data3
 
 def index() -> str:
-    return render_template("index.html", active_page="home")
+    return render_template('index.html', active_page='home')
 
 def locator_list():
-    data = get_restaurant_data()
-    locators = data['Locator'].unique().tolist()
+    data = get_restaurant_direct()
+    locators = data['locator'].unique().tolist()
     return locators
+
+
+##----- time alteration------##
+
+def format_time(value):
+    """Convert 0700 to 7:00 AM"""
+    if not value:
+        return "Closed"
+    value = str(value).zfill(4)
+    hour = int(value[:2])
+    minute = value[2:]
+    period = "AM" if hour < 12 else "PM"
+    if hour == 0:
+        hour = 12
+    elif hour > 12:
+        hour -= 12
+    return f"{hour}:{minute} {period}"
+
+app.jinja_env.filters['format_time'] = format_time
 
 # ––––––––––––––– API ENDPOINT ––––––––––––––– #
 @app.route('/api/restaurants', methods=['GET'])
@@ -34,13 +60,13 @@ def get_restaurants() -> List[Dict]:
     Returns:
         List[Dict]: A list of restaurant records in dictionary format.
     '''
-    data = get_restaurant_data()
+    data = get_restaurant_direct()
     return data.to_dict('records')
 
 ## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
 @app.route('/')
 def home():
-    return render_template("index.html", active_page="home")
+    return render_template('index.html', active_page='home')
 
 @app.route('/about', methods=["GET"])
 def about():
@@ -60,13 +86,13 @@ def get_restaurants_page() -> str:
     '''
     locators = locator_list()
     place = request.args.get('place')
-    data = get_restaurant_data()
+    data = get_restaurant_direct()
     df = pd.DataFrame(data)
 
     df = df.drop(columns=['id'])
 
     if place:
-        df = df[df['Locator'] == place]
+        df = df[df['locator'] == place]
 
     restaurants = df.to_dict(orient='records')
 
@@ -93,10 +119,10 @@ def restaurant_detail(name: str) -> str:
     Raises:
         404: If the restaurant is not found. 
     '''
-    data = get_restaurant_data()
+    data = get_restaurant_direct()
     df = pd.DataFrame(data)
 
-    restaurant = df[df["Name"] == name]
+    restaurant = df[df["name"] == name]
 
     if restaurant.empty:
         return "Restaurant not found", 404
@@ -111,7 +137,14 @@ def restaurant_detail(name: str) -> str:
 ## ––––––––––––––– REVIEWS MODEL ––––––––––––––– ##
 @app.route('/reviews', methods=["GET"])
 def get_reviews_page():
-    return render_template("reviews.html", active_page="reviews")
+    rest = get_restaurant_direct()
+    data = get_reviews_data()
+
+    merged = pd.merge(data, rest[['name', 'rating']], on='name', how='left')
+    
+    reviews = merged.to_dict(orient='records')
+
+    return render_template("reviews.html", active_page="reviews", reviews=reviews)
 
 ## ––––––––––––––– PREFERENCES MODEL ––––––––––––––– ##
 @app.route('/preferences', methods=["GET"])
