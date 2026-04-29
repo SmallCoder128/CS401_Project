@@ -7,12 +7,63 @@
         <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        <title>WebName | Preferences</title>
+        <title>Oʻahu Restaurant Finder | Preferences</title>
+
+        <style>
+            .select-preferences{
+                background-color: white;
+            }
+            .category-columns {
+                column-count: 4;        /* number of columns */
+                column-gap: 4rem;
+            }
+
+            .category-columns .form-check {
+                break-inside: avoid;    /* prevents awkward splitting */
+            }
+        </style>
     </head>
 
     <body>
 
         {% include 'navbar.html' %}
+
+        <div class="px-5 pt-5 pb-3">
+            <h1>Preferences</h1>
+            <p>Description of what users can do.</p>
+        </div>
+
+        <div class="container-fluid px-5 pb-3 select-preferences"> 
+            <form method="GET" action="/restaurants">
+
+                <label class="fw-bold mt-3 mb-3">Select categories:</label>
+            
+                <div class="category-columns">
+                    {% for c in cats %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="cats"
+                               value="{{ c }}"
+                               id="cat{{ loop.index }}"
+                               {% if c in selected_cats %}checked{% endif %}>
+                
+                        <label class="form-check-label" for="cat{{ loop.index }}">
+                            {{ c }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" 
+                        class="btn btn-primary mt-3">
+                        Apply
+                    </button>
+                </div>
+                
+            </form>   
+        </div>
 
     </body>
 </html>
