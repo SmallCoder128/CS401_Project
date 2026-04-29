@@ -227,9 +227,6 @@ def review_page(name: str ) -> str:
     reviews = get_reviews_data()
     reviews_df = reviews[reviews['name'] == name]
     reviews = reviews_df.to_dict(orient='records')
-
-    print(reviews)
-
     
     return render_template(
         "restaurant_reviews.html",
