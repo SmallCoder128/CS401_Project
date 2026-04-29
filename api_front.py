@@ -172,15 +172,11 @@ def get_reviews_page():
     restaurants_df = get_restaurant_direct()
     sort_option = request.args.get("sort")
 
-    """merged = reviews_df.merge(
-        restaurants_df[['alias', 'name']],
-        on='alias',
-        how='left'
-    )
+    merged = reviews_df.merge(
+        restaurants_df[['rating', 'name']],
+        on='name',
+        how='left')
 
-    merged = pd.concat([merged, restaurants_df['name']], axis=1)"""
-
-    merged = reviews_df
     # Sorting Logic
     if sort_option == "rating":
         merged = merged.sort_values(by="rating", ascending=False)
@@ -227,7 +223,7 @@ def review_page(name: str ) -> str:
     reviews = get_reviews_data()
     reviews_df = reviews[reviews['name'] == name]
     reviews = reviews_df.to_dict(orient='records')
-    
+
     return render_template(
         "restaurant_reviews.html",
         reviews=reviews,
