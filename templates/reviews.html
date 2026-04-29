@@ -14,5 +14,38 @@
 
         {% include 'navbar.html' %}
 
+         <div class="container-fluid px-5 pt-3 pb-5">
+            <div class="row g-4">
+                {% for r in reviews %}
+                <div class="col-xl-12">
+                    <a href="{{ url_for('restaurant_detail', name=r.name)}}" 
+                        class="restaurant-link" target="_blank">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="row">
+                                     <div class ="col">
+                                     <h4 class="card-title">{{ r.name }}</h4>
+                                     <p class="card-text mb-1">
+                                        <strong>Rating:</strong> {{ r.rating }}
+                                     </p>
+                                     </div>
+                                     <div class ="col"></div>
+                                     <div class ="col">
+                                        <div class ="card-body">
+                                             <p class="card-text mb-1">
+                                             <strong>Review:</strong> {{ r.review1 }}
+                                             </p>
+                                        </div>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
     </body>
 </html>
