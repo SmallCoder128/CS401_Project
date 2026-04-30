@@ -15,6 +15,8 @@ def get_restaurant_direct() -> DataFrame:
     data1['location'] = data1['location'].apply(ast.literal_eval)
     data1['hours_day'] = data1['hours_day'].apply(ast.literal_eval)
     data1['coordinates'] = data1['coordinates'].apply(ast.literal_eval)
+    data1['attributes'] = data1['attributes'].apply(ast.literal_eval)
+    data1['menu_url'] = data1['attributes'].apply(lambda x: x.get('menu_url'))
     return data1
 
 def get_reviews_data() -> DataFrame:
