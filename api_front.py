@@ -173,9 +173,8 @@ def get_reviews_page():
     sort_option = request.args.get("sort")
 
     merged = reviews_df.merge(
-        restaurants_df[['rating', 'name']],
-        on='name',
-        how='left')
+        restaurants_df[['rating', 'name']], on='name', how='left'
+    )
 
     # Sorting Logic
     if sort_option == "rating":
