@@ -79,10 +79,10 @@ p, label, select {
     filter: grayscale(100%) brightness(90%) contrast(110%);
     opacity: 1;
 }
-.web-name{
+.web-name, .tagline{
     color: white;
     font-weight: bold !important;
-    text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.3);
+    text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.7);
 }
 
 /* –––––––––– RESTAURANT MODEL –––––––––– */
