@@ -4,6 +4,9 @@
 /* –––––––––– GENERAL –––––––––– */
 body{
     background-color: #f5f8fc !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0;
 }
 
@@ -11,8 +14,19 @@ h1, h2, h3, h4, h5, h6 {
     font-family: "Google Sans";
 }
 
-p, label, select {
+p:not(.footer-text), label, select {
     font-family: "Rubik"; 
+}
+
+.footer{
+    background-color: #3c6ec2 !important;
+    height: 2rem;
+}
+
+.footer-text{
+    font-family: "Google Sans";
+    font-size: 0.9rem;
+    color: white;
 }
 
 /* –––––––––– NAVBAR –––––––––– */
@@ -74,7 +88,7 @@ p, label, select {
 
 /* –––––––––– INDEX –––––––––– */
 .hero-img{
-    height: 450px;
+    height: 32rem;
     object-fit: cover;
     filter: grayscale(100%) brightness(90%) contrast(110%);
     opacity: 1;

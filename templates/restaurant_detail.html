@@ -75,7 +75,7 @@
                                 View Reviews
                         </a>
                             <!-- Menu link -->
-                            {% if restaurant.menu_url is defined and restaurant.menu_url == restaurant.menu_url %}
+                            {% if restaurant.menu_url %}
                             <a href="{{ restaurant.menu_url }}" target="_blank" class="btn btn-custom rounded-pill btn-sm">
                                 View Menu
                             </a>
@@ -191,6 +191,8 @@
             </div>
         
         </div>
+
+        {% include 'footer.html' %}
 
     </body>
 </html>
