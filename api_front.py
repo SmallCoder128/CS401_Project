@@ -3,43 +3,17 @@ import ast
 from flask import Flask, request, render_template
 from typing import List, Dict
 from pandas import DataFrame
+from data_utils import (
+    get_restaurant_direct,
+    get_reviews_data,
+    get_preferences_data,
+    locator_list,
+    cats_list
+)
 
 app = Flask(__name__)
 
-def get_restaurant_data() -> DataFrame:
-    data = pd.read_csv("data/restaurants.csv")
-    return data
-
-def get_restaurant_direct() -> DataFrame:
-    data1 = pd.read_csv('data/Restaurants_direct.csv')
-    data1['location'] = data1['location'].apply(ast.literal_eval)
-    data1['hours_day'] = data1['hours_day'].apply(ast.literal_eval)
-    data1['coordinates'] = data1['coordinates'].apply(ast.literal_eval)
-    data1['attributes'] = data1['attributes'].apply(ast.literal_eval)
-    data1['menu_url'] = data1['attributes'].apply(lambda x: x.get('menu_url'))
-    return data1
-
-def get_reviews_data() -> DataFrame:
-    data2 = pd.read_csv("data/restaurant_reviews.csv")
-    return data2
-
-def get_preferences_data() -> DataFrame:
-    data3 = pd.read_csv("data/category_table.csv")
-    return data3
-
-def locator_list():
-    data = get_restaurant_direct()
-    locators = data['locator'].str.strip().unique().tolist()
-    return locators
-
-def cats_list():
-    data = get_preferences_data()
-    df = pd.DataFrame(data)
-
-    df['cats'] = df['cats'].apply(ast.literal_eval)
-    all_cats = df['cats'].explode().unique().tolist()
-    return sorted(all_cats)
-#-----------------filters-----------------#
+#----------------- FILTERS -----------------#
 def format_time(value):
     """Convert 0700 to 7:00 AM"""
     if not value:
@@ -184,6 +158,8 @@ def get_reviews_page():
     elif sort_option == "alpha":
         merged = merged.sort_values(by="name", ascending=True)
 
+    merged = merged.drop_duplicates(subset=['name'])
+
     reviews = merged.to_dict(orient='records')
 
     return render_template(
@@ -216,6 +192,7 @@ def restaurant_reviews(name: str) -> str:
         reviews=reviews,
         active_page="reviews"
     )
+    
 ## ---------------SINGLE RESTRAURANT REVIEW PAGE---------------- ##
 @app.route('/restaurant/review/<name>', methods=['GET'])
 def review_page(name: str ) -> str:
@@ -225,8 +202,17 @@ def review_page(name: str ) -> str:
     reviews_df = reviews[reviews['name'] == name]
     reviews = reviews_df.to_dict(orient='records')
 
+    restaurant_df = get_restaurant_direct()
+    restaurant = restaurant_df[restaurant_df['name'] == name]
+    
+    if restaurant.empty:
+        return "Restaurant not found", 404
+    
+    restaurant = restaurant.iloc[0].to_dict()
+
     return render_template(
         "restaurant_reviews.html",
+        restaurant=restaurant,
         reviews=reviews,
         active_page="reviews"
     )
