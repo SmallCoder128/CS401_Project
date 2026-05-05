@@ -35,7 +35,7 @@
             <div class="row g-4">
                 {% for r in reviews %}
                 <div class="col-xl-12">
-                    <a href="{{ url_for('restaurant_reviews', name=r.name)}}#reviews-section" 
+                    <a href="{{ url_for('review_page', name=r.name)}}#reviews-section" 
                         class="restaurant-link">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">

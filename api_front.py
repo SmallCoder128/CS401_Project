@@ -3,34 +3,27 @@ import ast
 from flask import Flask, request, render_template
 from typing import List, Dict
 from pandas import DataFrame
-from data_utils import (
-    get_restaurant_direct,
-    get_reviews_data,
-    get_preferences_data,
-    locator_list,
-    cats_list
-)
+from data_utils import (format_time, get_restaurant_direct, 
+                        get_reviews_data, get_preferences_data,
+                        locator_list, cats_list
+                        )
 
 app = Flask(__name__)
 
 #----------------- FILTERS -----------------#
-def format_time(value):
-    """Convert 0700 to 7:00 AM"""
-    if not value:
-        return "Closed"
-    value = str(value).zfill(4)
-    hour = int(value[:2])
-    minute = value[2:]
-    period = "AM" if hour < 12 else "PM"
-    if hour == 0:
-        hour = 12
-    elif hour > 12:
-        hour -= 12
-    return f"{hour}:{minute} {period}"
-
 app.jinja_env.filters['format_time'] = format_time
 
-# ––––––––––––––– API ENDPOINT ––––––––––––––– #
+## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
+@app.route('/')
+def home():
+    return render_template("index.html", active_page="home")
+
+@app.route('/about', methods=["GET"])
+def about():
+    return render_template("about.html", active_page="about")
+
+# ––––––––––––––– RESTAURANTS: API ENDPOINT ––––––––––––––– #
+## 2 GET
 @app.route('/api/restaurants', methods=['GET'])
 def get_restaurants() -> List[Dict]:
     '''
@@ -42,14 +35,34 @@ def get_restaurants() -> List[Dict]:
     data = get_restaurant_direct()
     return data.to_dict('records')
 
-## ––––––––––––––– HOME & ABOUT ROUTES ––––––––––––––– ##
-@app.route('/')
-def home():
-    return render_template("index.html", active_page="home")
+@app.route('/api/restaurants/<name>', methods=['GET'])
+def api_get_restaurant(name):
+    df = get_restaurant_direct()
+    result = df[df['name'] == name]
 
-@app.route('/about', methods=["GET"])
-def about():
-    return render_template("about.html", active_page="about")
+    if result.empty:
+        return {"error": "not found"}, 404
+
+    return result.iloc[0].to_dict()
+
+## 1 POST
+@app.route('/api/restaurants', methods=['POST'])
+def api_add_restaurant():
+    data = request.json
+    df = get_restaurant_direct()
+
+    df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+
+    return {"message": "restaurant added (in-memory only)"}, 201
+
+## 1 DELETE
+@app.route('/api/restaurants/<name>', methods=['DELETE'])
+def api_delete_restaurant(name):
+    df = get_restaurant_direct()
+
+    df = df[df['name'] != name]
+
+    return {"message": f"{name} deleted (not saved)"}, 200
 
 ## ––––––––––––––– RESTAURANT MODEL ––––––––––––––– ##
 ## Directory Page
@@ -100,7 +113,7 @@ def get_restaurants_page() -> str:
         selected_cats=selected_cats)
 
 ## Individual Restaurant Page
-@app.route('/restaurant/<name>')
+@app.route('/restaurant/<name>', methods=['GET'])
 def restaurant_detail(name: str) -> str:
     '''
     Renders a detailed page for a specific restaurant.
@@ -133,6 +146,36 @@ def restaurant_detail(name: str) -> str:
         active_page="restaurants",
         restaurant=restaurant,
         categories=cats)
+
+## ––––––––––––––– REVIEWS: API ENDPOINT ––––––––––––––– ##
+## 2 GET
+@app.route('/api/reviews', methods=['GET'])
+def api_get_reviews():
+    return get_reviews_data().to_dict('records')
+
+@app.route('/api/reviews/<name>', methods=['GET'])
+def api_get_reviews_by_restaurant(name):
+    df = get_reviews_data()
+    return df[df['name'] == name].to_dict('records')
+
+## 1 POST
+@app.route('/api/reviews', methods=['POST'])
+def api_add_review():
+    data = request.json
+    df = get_reviews_data()
+
+    df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+
+    return {"message": "review added (in-memory only)"}, 201
+
+## 1 DELETE
+@app.route('/api/reviews/<name>', methods=['DELETE'])
+def api_delete_review(name):
+    df = get_reviews_data()
+
+    df = df[df['name'] != name]
+
+    return {"message": "review deleted"}, 200
 
 ## ––––––––––––––– REVIEWS MODEL ––––––––––––––– ##
 ## General Reviews Page
@@ -168,32 +211,6 @@ def get_reviews_page():
         active_page="reviews")
 
 ## Individual Reviews Page
-@app.route('/restaurant/reviews/<name>', methods=['GET'])
-def restaurant_reviews(name: str) -> str:
-    """
-    Render all reviews for a specific restaurant.
-    """
-    reviews_df = get_reviews_data()
-    restaurant_df = get_restaurant_direct()
-
-    restaurant = restaurant_df[restaurant_df['name'] == name]
-    
-    if restaurant.empty:
-        return "Restaurant not found", 404
-    
-    restaurant = restaurant.iloc[0].to_dict()
-
-    reviews = reviews_df[reviews_df['name'] == name]
-    reviews = reviews_df.to_dict(orient='records')
-
-    return render_template(
-        "restaurant_reviews.html",
-        restaurant=restaurant,
-        reviews=reviews,
-        active_page="reviews"
-    )
-    
-## ---------------SINGLE RESTRAURANT REVIEW PAGE---------------- ##
 @app.route('/restaurant/review/<name>', methods=['GET'])
 def review_page(name: str ) -> str:
     """Render a page showing all reviews for a specific restaurant."""
@@ -216,6 +233,36 @@ def review_page(name: str ) -> str:
         reviews=reviews,
         active_page="reviews"
     )
+
+## ––––––––––––––– PREFERENCES: API ENDPOINT ––––––––––––––– ##
+## 2 GET
+@app.route('/api/preferences', methods=['GET'])
+def api_get_preferences():
+    return get_preferences_data().to_dict('records')
+
+@app.route('/api/preferences/cats', methods=['GET'])
+def api_get_cats():
+    return cats_list()
+
+## 1 POST
+@app.route('/api/preferences', methods=['POST'])
+def api_add_preference():
+    data = request.json
+    df = get_preferences_data()
+
+    df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+
+    return {"message": "preference added"}, 201
+
+## 1 DELETE
+@app.route('/api/preferences/<name>', methods=['DELETE'])
+def api_delete_preference(name):
+    df = get_preferences_data()
+
+    df = df[df['name'] != name]
+
+    return {"message": "preference deleted"}, 200
+
 ## ––––––––––––––– PREFERENCES MODEL ––––––––––––––– ##
 @app.route('/preferences', methods=["GET"])
 def get_preferences_page():
