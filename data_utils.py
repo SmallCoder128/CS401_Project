@@ -2,6 +2,20 @@ import pandas as pd
 from pandas import DataFrame
 import ast
 
+def format_time(value):
+    """Convert 0700 to 7:00 AM"""
+    if not value:
+        return "Closed"
+    value = str(value).zfill(4)
+    hour = int(value[:2])
+    minute = value[2:]
+    period = "AM" if hour < 12 else "PM"
+    if hour == 0:
+        hour = 12
+    elif hour > 12:
+        hour -= 12
+    return f"{hour}:{minute} {period}"
+
 def get_restaurant_data() -> DataFrame:
     data = pd.read_csv("data/restaurants.csv")
     return data
